@@ -125,6 +125,7 @@ common:setup:
 include: 
   - local: 'benchmarks/backgrounds/config.yml'
   - local: 'benchmarks/backwards_ecal/config.yml'
+  - local: 'benchmarks/b0_tracking/config.yml'
   - local: 'benchmarks/beamline/config.yml'
   - local: 'benchmarks/calo_pid/config.yml'
   - local: 'benchmarks/campaign/config.yml'
@@ -163,6 +164,7 @@ deploy_results:
     - "collect_results:backgrounds"
     - "collect_results:backwards_ecal"
     - "collect_results:backwards_ecal_dis"
+    - "collect_results:b0_tracking"
     - "collect_results:barrel_ecal"
     - "collect_results:beamline"
     - "collect_results:calo_pid"

@@ -1,0 +1,67 @@
+rule b0_tracking_generate:
+    input:
+        script=workflow.source_path("analysis/gen_protons.py"),
+    output:
+        GEN_FILE="sim_output/b0_tracking/protons_{P}GeV.hepmc3",
+    params:
+        N_EVENTS=2000,
+    shell:
+        """
+python {input.script} {wildcards.P} {params.N_EVENTS} {wildcards.P} {output.GEN_FILE}
+"""
+
+rule b0_tracking_simulate:
+    input:
+        GEN_FILE="sim_output/b0_tracking/protons_{P}GeV.hepmc3",
+        warmup="warmup.edm4hep.root",
+        geometry_lib=find_epic_libraries(),
+    output:
+        SIM_FILE="sim_output/b0_tracking/{DETECTOR_CONFIG}/protons_{P}GeV.edm4hep.root",
+    params:
+        N_EVENTS=2000,
+        P=lambda wildcards: wildcards.P,
+        DETECTOR_PATH=config["DETECTOR_PREFIX"] + "/share/epic",
+        DETECTOR_CONFIG=lambda wildcards: wildcards.DETECTOR_CONFIG,
+        DD4HEP_HASH=get_spack_package_hash("dd4hep"),
+        NPSIM_HASH=get_spack_package_hash("npsim"),
+    cache: True
+    singularity: EIC_SINGULARITY_CONTAINER,
+    shell:
+        """
+exec npsim \
+  --compactFile {params.DETECTOR_PATH}/{params.DETECTOR_CONFIG}.xml \
+  --random.seed 1{params.P} \
+  --numberOfEvents {params.N_EVENTS} \
+  --inputFiles {input.GEN_FILE} \
+  --outputFile {output.SIM_FILE}
+"""
+
+rule b0_tracking_recon:
+    input:
+        SIM_FILE="sim_output/b0_tracking/{DETECTOR_CONFIG}/protons_{P}GeV.edm4hep.root",
+        warmup="warmup.edm4hep.root",
+    output:
+        REC_FILE="sim_output/b0_tracking/{DETECTOR_CONFIG}/protons_{P}GeV.edm4eic.root",
+    params:
+        DETECTOR_CONFIG=lambda wildcards: wildcards.DETECTOR_CONFIG,
+        EICRECON_HASH=get_spack_package_hash("eicrecon"),
+    cache: True
+    singularity: EIC_SINGULARITY_CONTAINER,
+    shell:
+        """
+env DETECTOR_CONFIG={params.DETECTOR_CONFIG} \
+  eicrecon {input.SIM_FILE} -Ppodio:output_file={output.REC_FILE} \
+  -Ppodio:output_collections=MCParticles,B0TrackerHits,B0TrackerCKFTracks,B0TrackerCKFTrackAssociations
+"""
+
+rule b0_tracking_analysis:
+    input:
+        REC_FILES=expand("sim_output/b0_tracking/{{DETECTOR_CONFIG}}/protons_{P}GeV.edm4eic.root", P=[15, 41]),
+        script=workflow.source_path("analysis/b0_tracking.py"),
+    output:
+        results_dir=directory("results/{DETECTOR_CONFIG}/b0_tracking"),
+    singularity: EIC_SINGULARITY_CONTAINER,
+    shell:
+        """
+python {input.script} {output.results_dir} {wildcards.DETECTOR_CONFIG} {input.REC_FILES}
+"""
