@@ -241,15 +241,10 @@ void analyze_DVCS_eicrecon(TString fileList = "inputFileList.list", TString outp
 		TTreeReaderArray<float>  b0_cluster_energy = {tree_reader, "B0ECalClusters.energy"}; //deposited energy in cluster
 		
 		//reco tracks (where b0 tracks live!!!)
-		//TTreeReaderArray<float> reco_track_x = {tree_reader, "ReconstructedChargedParticles.momentum.x"};
-    	//TTreeReaderArray<float> reco_track_y = {tree_reader, "ReconstructedChargedParticles.momentum.y"};
-    	//TTreeReaderArray<float> reco_track_z = {tree_reader, "ReconstructedChargedParticles.momentum.z"};
-		//TTreeReaderArray<int> reco_track_PDG = {tree_reader, "ReconstructedChargedParticles.PDG"};
-		
-		TTreeReaderArray<float> reco_track_x = {tree_reader, "ReconstructedTruthSeededChargedParticles.momentum.x"};
-    	TTreeReaderArray<float> reco_track_y = {tree_reader, "ReconstructedTruthSeededChargedParticles.momentum.y"};
-    	TTreeReaderArray<float> reco_track_z = {tree_reader, "ReconstructedTruthSeededChargedParticles.momentum.z"};
-		TTreeReaderArray<int> reco_track_PDG = {tree_reader, "ReconstructedTruthSeededChargedParticles.PDG"};
+		TTreeReaderArray<float> reco_track_x = {tree_reader, "ReconstructedChargedParticles.momentum.x"};
+    	TTreeReaderArray<float> reco_track_y = {tree_reader, "ReconstructedChargedParticles.momentum.y"};
+    	TTreeReaderArray<float> reco_track_z = {tree_reader, "ReconstructedChargedParticles.momentum.z"};
+		TTreeReaderArray<int> reco_track_PDG = {tree_reader, "ReconstructedChargedParticles.PDG"};
 		
 		//forward EMCAL endcap
 		TTreeReaderArray<float> pECAL_cluster_x = {tree_reader, "EcalEndcapPTruthClusters.position.x"};
